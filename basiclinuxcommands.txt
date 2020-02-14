@@ -1,0 +1,3 @@
+How do you view the working directory in linux---pwd
+How do you secure shell in linux---ssh
+How do you list a directory in linux---ls
