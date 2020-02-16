@@ -24,14 +24,14 @@ fi
 sort -o "$1.db" "$1.db" --general-numeric-sort
 
 addPoints(){
-    points=`cat "$1.db" | grep -e "$front$" | awk -F'---' '{print $1}'`
+    points=`cat "$1.db" | grep -e "---$front$" | awk -F'---' '{print $1}'`
     newpoints=`expr $points + 1`
     sed -i "s/$points---$front/$newpoints---$front/g" "$1.db" 
 }
 
 removePoints(){
-    points=`cat "$1.db" | grep -e "$front$" | awk -F'---' '{print $1}'`
-    newpoints=`expr $points - 1`
+    points=`cat "$1.db" | grep -e "---$front$" | awk -F'---' '{print $1}'`
+    newpoints=`expr $points - 2`
     sed -i "s/$points---$front/$newpoints---$front/g" "$1.db" 
 }
 
@@ -41,23 +41,25 @@ shuffle() {
 
 testCard() {
     line=`awk "NR == $2" $1.db`
-    front="$(echo $line | awk -F'---' '{print $2}')"
+    id="$(echo $line | awk -F'---' '{print $2}')"
+    front="$id"
+    #points="$(echo $line | awk -F'---' '{print $1}')"
 	#front=`$(grep "$word" "$1" | awk -F'---' '{print $1}')`
-    back=`cat "$1" | grep "$front---" | awk -F'---' '{print $2}'`
+    back=`cat "$1" | grep "$id---" | awk -F'---' '{print $2}'`
 
     echo "The front is $front"
     read -p 'Back? ' answer
 
     if [ "$answer" = "$back" ]; then
         echo "You were correct the back was $back"
-        addPoints $1 $front
+        addPoints $1 $id
 
         read -p 'Press enter to continue
 ' next
     else
         echo "The back was \"$back\" you typed \"$answer\""
-        removePoints $1 $front
-
+        removePoints $1 $id
+	
         read -p 'If you were right press "r". Press enter to continue
 ' next
     fi
@@ -66,9 +68,17 @@ testCard() {
         exit;
     fi
 
+    if [ "$next" = "k" ]; then
+        addPoints $1 $id
+        addPoints $1 $id
+	addPoints $1 $id
+	addPoints $1 $id
+    fi
+
     if [ "$next" = "r" ]; then
-        addPoints $1 $front
-        addPoints $1 $front
+        addPoints $1 $id
+        addPoints $1 $id
+	addPoints $1 $id
         read -p 'Marked as correct. Press enter to continue
 '
     fi
@@ -81,7 +91,7 @@ min() {
 }
 
 length=`wc -l "$1.db" | cut -d' ' -f1`
-count=`min "$length" 10`
+count=`min "$length" 5`
 count=`expr $count + 0`
 
 while :

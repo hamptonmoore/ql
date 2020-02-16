@@ -1,4 +1,4 @@
-# fc
+# ql
 A simple shell based flash card program
 
 ## Features
@@ -10,7 +10,7 @@ A simple shell based flash card program
 
 ## Usage
 ```
-./fc basiclinuxcommands.txt
+./ql basiclinuxcommands.txt
 ```
 
 ## Flashcard Datasets
