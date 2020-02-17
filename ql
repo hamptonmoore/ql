@@ -1,32 +1,40 @@
 #!/bin/bash
 
-if [ -z "$1" ]
-  then
-    echo "No argument supplied"
+FLIP=false
+
+while [[ "$#" -gt 0 ]]; do case $1 in
+  -f|--file) FLASHCARDS="$2"; shift;;
+  -s|--switch|--flip) FLIP=true; shift;;
+  *) echo "Unknown parameter passed: $1"; exit 1;;
+esac; shift; done
+
+if [ -z "$FLASHCARDS" ]; then
+    echo "An input file is required"
+    echo "EX: ./ql --file basiclinuxcommands.txt"
     exit
 fi
 
-printf "\033c"
+#printf "\033c"
 
-if [ ! -f "$1" ]; then
-    echo "$1 does not exist"
+if [ ! -f "$FLASHCARDS" ]; then
+    echo "The file $FLASHCARDS does not exist"
     exit
 fi
 
-echo "$1 has been selected"
+echo "$FLASHCARDS has been selected"
 
-if [ ! -f "$1.db" ]; then
-    echo "$1 does not have a database, creating one"
-    awk -F'---' '{print "0---" $1}' "$1"> "$1.db"
+if [ ! -f "$FLASHCARDS.db" ]; then
+    echo "$FLASHCARDS does not have a database, creating one"
+    awk -F'---' '{print "0---" $1}' "$FLASHCARDS"> "$FLASHCARDS.db"
 
 fi
 
-sort -o "$1.db" "$1.db" --general-numeric-sort
+sort -o "$FLASHCARDS.db" "$FLASHCARDS.db" --general-numeric-sort
 
 changePoints(){
     points=$(grep -e "---$2$" "$1.db" | awk -F'---' '{print $1}')
     newpoints=$(( "$points" + $3 ))
-    sed -i "s/$points---$2/$newpoints---$2/g" "$1.db" 
+    sed -i "s/$points---$2/$newpoints---$2/g" "$FLASHCARDS.db" 
 }
 
 shuffle() { 
@@ -34,24 +42,33 @@ shuffle() {
 }
 
 testCard() {
+
     line=$(awk "NR == $2" "$1".db)
     id="$(echo "$line" | awk -F'---' '{print $2}')"
     
-    front="$id"
-    back=$(grep "$id---" "$1" | awk -F'---' '{print $2}')
+    back=""
+    front=""
 
-    echo "The front is $front"
+    if $FLIP; then 
+        back="$id"
+        front=$(grep "$id---" "$1" | awk -F'---' '{print $2}')
+    else
+        front="$id"
+        back=$(grep "$id---" "$1" | awk -F'---' '{print $2}')
+    fi
+
+    echo "The front is \"$front\""
     read -r -p 'Back? ' answer
 
     if [ "$answer" = "$back" ]; then
-        echo "You were correct the back was $back"
-        changePoints "$1" "$id" "1"
+        echo "You were correct the back was \"$back\""
+        changePoints "$FLASHCARDS" "$id" "1"
 
         read -r -p 'Press enter to continue
 ' next
     else
         echo "The back was \"$back\" you typed \"$answer\""
-        changePoints "$1" "$id" "-2"
+        changePoints "$FLASHCARDS" "$id" "-2"
 	
         read -r -p 'If you were right press "r". Press enter to continue
 ' next
@@ -62,11 +79,11 @@ testCard() {
     fi
 
     if [ "$next" = "k" ]; then
-        changePoints "$1" "$id" "5"
+        changePoints "$FLASHCARDS" "$id" "5"
     fi
 
     if [ "$next" = "r" ]; then
-        changePoints "$1" "$id" "3"
+        changePoints "$FLASHCARDS" "$id" "3"
         read -r -p 'Marked as correct. Press enter to continue
 '
     fi
@@ -78,7 +95,7 @@ min() {
    (( $1 <= $2 )) && echo "$1" || echo "$2" 
 }
 
-length=$(wc -l "$1.db" | cut -d' ' -f1)
+length=$(wc -l "$FLASHCARDS.db" | cut -d' ' -f1)
 count=$(min "$length" 5)
 count=$(( "$count" + 0 ))
 
@@ -86,8 +103,8 @@ while :
 do
     for lineNumber in $( eval echo "{1..$count}" )
     do
-        testCard "$1" "$lineNumber"
+        testCard "$FLASHCARDS" "$lineNumber"
     done
 
-    sort -o "$1.db" "$1.db" --general-numeric-sort
+    sort -o "$FLASHCARDS.db" "$FLASHCARDS.db" --general-numeric-sort
 done

@@ -1,3 +1,19 @@
-How do you view the working directory in linux---pwd
-How do you secure shell in linux---ssh
-How do you list a directory in linux---ls
+List directory contents---ls
+Searches files for the occurrence of a string of characters---grep
+Changes the working directory---cd
+Shuts down the machine---shutdown
+Print working directory (Shows you the full pathname of the current working directory)---pwd
+Run this to change your password. A superuser may use this command to reset another user's password---passwd
+Short for "move." This moves a file or directory to another location.---mv
+Copies files or directories.---cp
+Removes files or directories---rm
+Change mode. This command can change permissions to specific files or directories.---chmod
+Change owner. Used to change owner of a file or set of files or directories.---chown
+Sets parameters of the wireless interface in a linux system. For example, we can change the frequency here.---iwconfig
+ifconfig stands for "interface configuration". It is used to view and change the configuration of the network interfaces on your system---ifconfig
+Displays the process table. Showing active processes for the current user.---ps
+Switches to superuser. Can also switch to a totally separate user on that system. This is a change for an entire session. You will need the password for any user.---su
+Runs the specific command with superuser privileges.---sudo
+Command used to get or install additional packages, can also remove existing packages---apt-get
+CLI text editor. This is found in virtually every linux and unix system, even embedded systems. Think of it like notepad, but for those that hate themselves.---vi
+Copies or converts files. Can move across multiple medias, can create backup images, and restore from backup images.---dd
